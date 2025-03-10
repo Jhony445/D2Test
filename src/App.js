@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-const CLIENT_ID = process.env.REACT_APP_CLIENT_ID; // Usamos la variable de entorno
-const API_KEY = process.env.REACT_APP_API_KEY; // Usamos la variable de entorno
+const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
+const API_KEY = process.env.REACT_APP_API_KEY;  // Cambia esto para usar la variable de entorno
 const USER_URL = "https://www.bungie.net/Platform/User/GetBungieNetUser/";
 
 function App() {
