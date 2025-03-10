@@ -9,6 +9,9 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    console.log('CLIENT_ID:', process.env.REACT_APP_BUNGIE_CLIENT_ID);
+console.log('CLIENT_SECRET:', process.env.REACT_APP_BUNGIE_CLIENT_SECRET);
+
     const token = localStorage.getItem("bungie_access_token");
 
     if (token) {
