@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const CLIENT_ID = "49241";
-const CLIENT_SECRET = "RXjxDHlOr0VZf3fZAu6MRE67PbRaYwk7wsz9FXw1WCE"; // ⚠️ No expongas esto en producción
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID; // Usamos la variable de entorno
+const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET; // Usamos la variable de entorno
 const TOKEN_URL = "https://www.bungie.net/platform/app/oauth/token/";
 
 function Callback() {
