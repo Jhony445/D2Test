@@ -9,12 +9,11 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    console.log('CLIENT_ID:', process.env.REACT_APP_BUNGIE_CLIENT_ID);
-console.log('CLIENT_SECRET:', process.env.REACT_APP_BUNGIE_CLIENT_SECRET);
-
+    // Verificar si el token de acceso está en el localStorage
     const token = localStorage.getItem("bungie_access_token");
 
     if (token) {
+      // Si existe el token, obtener los datos del usuario
       fetch(USER_URL, {
         method: "GET",
         headers: {
@@ -25,7 +24,7 @@ console.log('CLIENT_SECRET:', process.env.REACT_APP_BUNGIE_CLIENT_SECRET);
         .then((res) => res.json())
         .then((data) => {
           if (data.Response) {
-            setUser(data.Response);
+            setUser(data.Response);  // Guardar los datos del usuario en el estado
           }
         })
         .catch((error) => console.error("Error obteniendo datos del usuario:", error));
@@ -33,11 +32,13 @@ console.log('CLIENT_SECRET:', process.env.REACT_APP_BUNGIE_CLIENT_SECRET);
   }, []);
 
   const handleLogin = () => {
-    const authUrl = `https://www.bungie.net/es/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code`;
+    // Redirigir al usuario a la página de autenticación de Bungie
+    const authUrl = `https://www.bungie.net/es/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=token`;  // Cambié el response_type a "token"
     window.location.href = authUrl; // Redirige al usuario a Bungie para autenticación
   };
 
   const handleLogout = () => {
+    // Eliminar el token de acceso y limpiar el estado
     localStorage.removeItem("bungie_access_token");
     setUser(null);
   };
