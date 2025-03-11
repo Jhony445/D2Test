@@ -5,11 +5,49 @@ const API_KEY = process.env.REACT_APP_API_KEY;
 const CharacterInventory = ({ character, membershipType, membershipId, otherCharacters }) => {
   const [inventory, setInventory] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
-  
+  const [itemDefinitions, setItemDefinitions] = useState({});
+
+  // Obtener definiciones de items
+  useEffect(() => {
+    const fetchItemDefinitions = async (itemHashes) => {
+      try {
+        const definitions = await Promise.all(
+          itemHashes.map(async (hash) => {
+            const response = await fetch(
+              `https://www.bungie.net/Platform/Destiny2/Manifest/DestinyInventoryItemDefinition/${hash}/`,
+              {
+                headers: {
+                  'X-API-Key': API_KEY
+                }
+              }
+            );
+            const data = await response.json();
+            return data.Response;
+          })
+        );
+        
+        const definitionsMap = definitions.reduce((acc, def) => {
+          acc[def.hash] = def;
+          return acc;
+        }, {});
+        
+        setItemDefinitions(definitionsMap);
+      } catch (error) {
+        console.error('Error fetching item definitions:', error);
+      }
+    };
+
+    if (inventory.length > 0) {
+      const itemHashes = inventory.map(item => item.itemHash);
+      fetchItemDefinitions([...new Set(itemHashes)]);
+    }
+  }, [inventory]);
+
+  // Obtener inventario
   useEffect(() => {
     const fetchInventory = async () => {
       const token = localStorage.getItem('bungie_access_token');
-      const url = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/Character/${character.characterId}/?components=205`; // Componente 205 para equipo equipado
+      const url = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/Character/${character.characterId}/?components=205`;
     
       try {
         const response = await fetch(url, {
@@ -20,19 +58,15 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
         });
         const data = await response.json();
         
-        if (data.Response && data.Response.equipment) {
-          const equipment = data.Response.equipment.data.items;
-          setInventory(equipment);
-        } else {
-          console.error('Datos de inventario no disponibles:', data);
-          setInventory([]);
+        if (data.Response?.equipment?.data?.items) {
+          setInventory(data.Response.equipment.data.items);
         }
       } catch (error) {
         console.error('Error fetching inventory:', error);
       }
     };
 
-    if (character && character.characterId) {
+    if (character?.characterId) {
       fetchInventory();
     }
   }, [character, membershipType, membershipId]);
@@ -58,12 +92,13 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
         })
       });
       
-      const data = await response.json();
-      if (data.ErrorCode === 1) {
+      const result = await response.json();
+      if (result.ErrorCode === 1) {
         console.log('Transferencia exitosa');
         setSelectedItem(null);
-      } else {
-        console.error('Error en transferencia:', data);
+        // Recargar inventario
+        const newInventory = inventory.filter(item => item.itemInstanceId !== selectedItem.itemInstanceId);
+        setInventory(newInventory);
       }
     } catch (error) {
       console.error('Error transferring item:', error);
@@ -74,29 +109,32 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
     <div className="inventory-container">
       <h3>Inventario de {getClassName(character.classType)}</h3>
       <div className="weapons-grid">
-      {inventory.map((item) => (
-          <div 
-            key={item.itemInstanceId} 
-            className="weapon-card"
-            onClick={() => setSelectedItem(item)}
-          >
-            <img 
-              src={`https://www.bungie.net${item.displayProperties?.icon || ''}`} 
-              alt={item.displayProperties?.name || 'Arma desconocida'} 
-              className="weapon-icon"
-              onError={(e) => {
-                e.target.onerror = null; 
-                e.target.src = 'https://www.bungie.net/common/destiny2_content/icons/ea5d6b7f6a0c1d3863f3f9b4eab8b61f.png';
-              }}
-            />
-            <p>{item.displayProperties?.name || 'Arma sin nombre'}</p>
-          </div>
-        ))}
+        {inventory.map((item) => {
+          const itemDef = itemDefinitions[item.itemHash] || {};
+          return (
+            <div 
+              key={item.itemInstanceId} 
+              className="weapon-card"
+              onClick={() => setSelectedItem(item)}
+            >
+              <img 
+                src={`https://www.bungie.net${itemDef.displayProperties?.icon}`} 
+                alt={itemDef.displayProperties?.name} 
+                className="weapon-icon"
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.src = 'https://www.bungie.net/common/destiny2_content/icons/ea5d6b7f6a0c1d3863f3f9b4eab8b61f.png';
+                }}
+              />
+              <p>{itemDef.displayProperties?.name || 'Arma desconocida'}</p>
+            </div>
+          );
+        })}
       </div>
 
       {selectedItem && (
         <div className="transfer-modal">
-          <h4>Transferir {selectedItem.itemName}</h4>
+          <h4>Transferir {itemDefinitions[selectedItem.itemHash]?.displayProperties?.name}</h4>
           <div className="characters-list">
             {otherCharacters.map((char) => (
               <div 
@@ -115,14 +153,13 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
   );
 };
 
-// Función helper para nombres de clase
 const getClassName = (classType) => {
-  switch(classType) {
-    case 0: return 'Titán';
-    case 1: return 'Cazador';
-    case 2: return 'Hechicero';
-    default: return 'Desconocido';
-  }
+  const classes = {
+    0: 'Titán',
+    1: 'Cazador',
+    2: 'Hechicero'
+  };
+  return classes[classType] || 'Desconocido';
 };
 
 export default CharacterInventory;
