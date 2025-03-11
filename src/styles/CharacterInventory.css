@@ -50,6 +50,8 @@
     object-fit: cover;
     margin-bottom: 0.8rem;
     border: 2px solid #3a3a3a;
+    background: #1a1a1a url('https://www.bungie.net/common/destiny2_content/icons/ea5d6b7f6a0c1d3863f3f9b4eab8b61f.png') no-repeat center;
+    background-size: 70%;
   }
   
   .weapon-card p {

@@ -74,18 +74,22 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
     <div className="inventory-container">
       <h3>Inventario de {getClassName(character.classType)}</h3>
       <div className="weapons-grid">
-        {inventory.map((item) => (
+      {inventory.map((item) => (
           <div 
             key={item.itemInstanceId} 
             className="weapon-card"
             onClick={() => setSelectedItem(item)}
           >
             <img 
-              src={`https://www.bungie.net${item.iconPath}`} 
-              alt={item.itemName} 
+              src={`https://www.bungie.net${item.displayProperties?.icon || ''}`} 
+              alt={item.displayProperties?.name || 'Arma desconocida'} 
               className="weapon-icon"
+              onError={(e) => {
+                e.target.onerror = null; 
+                e.target.src = 'https://www.bungie.net/common/destiny2_content/icons/ea5d6b7f6a0c1d3863f3f9b4eab8b61f.png';
+              }}
             />
-            <p>{item.itemName}</p>
+            <p>{item.displayProperties?.name || 'Arma sin nombre'}</p>
           </div>
         ))}
       </div>
