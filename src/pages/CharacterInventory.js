@@ -9,8 +9,8 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
   useEffect(() => {
     const fetchInventory = async () => {
       const token = localStorage.getItem('bungie_access_token');
-      const url = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/Character/${character.characterId}/?components=201`;
-      
+      const url = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/Character/${character.characterId}/?components=205`; // Componente 205 para equipo equipado
+    
       try {
         const response = await fetch(url, {
           headers: {
@@ -19,14 +19,22 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
           }
         });
         const data = await response.json();
-        const equipment = data.Response.equipment.data.items;
-        setInventory(equipment);
+        
+        if (data.Response && data.Response.equipment) {
+          const equipment = data.Response.equipment.data.items;
+          setInventory(equipment);
+        } else {
+          console.error('Datos de inventario no disponibles:', data);
+          setInventory([]);
+        }
       } catch (error) {
         console.error('Error fetching inventory:', error);
       }
     };
 
-    fetchInventory();
+    if (character && character.characterId) {
+      fetchInventory();
+    }
   }, [character, membershipType, membershipId]);
 
   const handleTransfer = async (targetCharacterId) => {
@@ -50,9 +58,12 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
         })
       });
       
-      if (response.ok) {
+      const data = await response.json();
+      if (data.ErrorCode === 1) {
         console.log('Transferencia exitosa');
         setSelectedItem(null);
+      } else {
+        console.error('Error en transferencia:', data);
       }
     } catch (error) {
       console.error('Error transferring item:', error);
@@ -61,7 +72,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
 
   return (
     <div className="inventory-container">
-      <h3>Inventario de {character.classType === 0 ? 'Titán' : character.classType === 1 ? 'Cazador' : 'Hechicero'}</h3>
+      <h3>Inventario de {getClassName(character.classType)}</h3>
       <div className="weapons-grid">
         {inventory.map((item) => (
           <div 
@@ -83,23 +94,31 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
         <div className="transfer-modal">
           <h4>Transferir {selectedItem.itemName}</h4>
           <div className="characters-list">
-            {otherCharacters
-              .filter(c => c.characterId !== character.characterId)
-              .map((char) => (
-                <div 
-                  key={char.characterId}
-                  className="character-option"
-                  onClick={() => handleTransfer(char.characterId)}
-                >
-                  <p>{char.classType === 0 ? 'Titán' : char.classType === 1 ? 'Cazador' : 'Hechicero'}</p>
-                  <p>Nivel: {char.light}</p>
-                </div>
-              ))}
+            {otherCharacters.map((char) => (
+              <div 
+                key={char.characterId}
+                className="character-option"
+                onClick={() => handleTransfer(char.characterId)}
+              >
+                <p>{getClassName(char.classType)}</p>
+                <p>Nivel: {char.light}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
     </div>
   );
+};
+
+// Función helper para nombres de clase
+const getClassName = (classType) => {
+  switch(classType) {
+    case 0: return 'Titán';
+    case 1: return 'Cazador';
+    case 2: return 'Hechicero';
+    default: return 'Desconocido';
+  }
 };
 
 export default CharacterInventory;
