@@ -30,8 +30,8 @@ function App() {
             const bungieUser = data.Response.bungieNetUser;
             const destinyMemberships = data.Response.destinyMemberships;
             const crossSaveOverride = data.Response.primaryMembershipId;
-            
-            let primaryMembership = crossSaveOverride 
+
+            let primaryMembership = crossSaveOverride
               ? destinyMemberships.find(m => m.membershipId === crossSaveOverride)
               : destinyMemberships[0];
 
@@ -82,7 +82,7 @@ function App() {
                   membershipType={destinyMembership.type}
                   membershipId={destinyMembership.id}
                   onCharacterSelect={setSelectedCharacter}
-                  onCharactersLoaded={handleCharactersLoaded}
+                  onCharactersLoaded={handleCharactersLoaded} // Así se debe pasar la prop
                 />
 
                 {selectedCharacter && (

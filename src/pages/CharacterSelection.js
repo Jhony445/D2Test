@@ -16,41 +16,46 @@ const getClassName = (classType) => {
     }
 };
 
-const CharacterSelection = ({ membershipType, membershipId, onCharacterSelect }) => {
+const CharacterSelection = ({ 
+    membershipType, 
+    membershipId, 
+    onCharacterSelect,
+    onCharactersLoaded // Prop añadida
+}) => {
     const [characters, setCharacters] = useState([]);
 
     useEffect(() => {
         const fetchCharacters = async () => {
-          if (!membershipType || !membershipId) return;
-          const token = localStorage.getItem("bungie_access_token");
-          if (!token) return;
-      
-          const profileUrl = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=100,200`;
-      
-          try {
-            const response = await fetch(profileUrl, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "X-API-Key": API_KEY,
-              },
-            });
-            const data = await response.json();
-            if (data.Response && data.Response.characters) {
-              const charactersData = Object.values(data.Response.characters.data);
-              setCharacters(charactersData);
-              
-              // Nueva línea añadida aquí
-              if (onCharactersLoaded) {
-                onCharactersLoaded(charactersData);
-              }
-            }
-          } catch (error) {
-            console.error("Error obteniendo personajes:", error);
-          }
-        };
-      
-        fetchCharacters();
-      }, [membershipType, membershipId]);
+            if (!membershipType || !membershipId) return;
+            const token = localStorage.getItem("bungie_access_token");
+            if (!token) return;
+        
+            const profileUrl = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/?components=100,200`;
+        
+            try {
+                const response = await fetch(profileUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "X-API-Key": API_KEY,
+                    },
+                });
+                const data = await response.json();
+                if (data.Response && data.Response.characters) {
+                    const charactersData = Object.values(data.Response.characters.data);
+                    setCharacters(charactersData);
+                    
+                    // Notificar al componente padre
+                    if (onCharactersLoaded) {
+                        onCharactersLoaded(charactersData);
+                    }
+                }
+                } catch (error) {
+                console.error("Error obteniendo personajes:", error);
+                }
+            };
+        
+            fetchCharacters();
+        }, [membershipType, membershipId, onCharactersLoaded]); // Dependencia añadida
 
     return (
         <div className="character-selection-wrapper"> 
