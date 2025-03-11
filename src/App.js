@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import CharacterSelection from "./pages/CharacterSelection";
 
 const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_API_KEY;
@@ -8,39 +9,50 @@ const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Asegúrate de que
 
 function App() {
   const [user, setUser] = useState(null);
+  const [destinyMembership, setDestinyMembership] = useState(null); // Nuevo estado
 
   useEffect(() => {
-    console.log("CLIENT_ID:", CLIENT_ID);
-    console.log("API_KEY:", API_KEY);
-
     const token = localStorage.getItem("bungie_access_token");
-    console.log("Token en localStorage:", token);
 
     if (token) {
-      console.log("Obteniendo datos del usuario desde:", USER_URL);
-      
       fetch(USER_URL, {
-        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
           "X-API-Key": API_KEY,
         },
       })
-        .then((res) => {
-          console.log("Respuesta de la API de Bungie:", res);
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
-          console.log("Datos del usuario obtenidos:", data);
-          if (data.Response && data.Response.bungieNetUser) {
-            setUser(data.Response.bungieNetUser);
-          } else {
-            console.error("Error: No se encontró 'bungieNetUser' en la respuesta", data);
+          if (data.Response) {
+            // 1. Obtener usuario de Bungie.net
+            const bungieUser = data.Response.bungieNetUser;
+            
+            // 2. Obtener membresías de Destiny
+            const destinyMemberships = data.Response.destinyMemberships;
+            
+            // 3. Determinar membresía primaria (cross-save o primera disponible)
+            const crossSaveOverride = data.Response.primaryMembershipId;
+            let primaryMembership;
+
+            if (crossSaveOverride) {
+              primaryMembership = destinyMemberships.find(
+                m => m.membershipId === crossSaveOverride
+              );
+            } else {
+              primaryMembership = destinyMemberships[0];
+            }
+
+            if (primaryMembership) {
+              setDestinyMembership({
+                type: primaryMembership.membershipType,
+                id: primaryMembership.membershipId
+              });
+            }
+
+            setUser(bungieUser);
           }
         })
-        .catch((error) => console.error("Error obteniendo datos del usuario:", error));
-    } else {
-      console.warn("No se encontró token en localStorage.");
+        .catch((error) => console.error("Error:", error));
     }
   }, []);
 
@@ -65,6 +77,18 @@ function App() {
             <h1>Bienvenido, {user.uniqueName}</h1>
             <p>ID de Bungie: {user.membershipId}</p>
             <button onClick={handleLogout}>Cerrar Sesión</button>
+
+            {/* Mostrar selección de personajes */}
+            {destinyMembership && (
+              <CharacterSelection
+                membershipType={destinyMembership.type}
+                membershipId={destinyMembership.id}
+                onCharacterSelect={(character) => {
+                  console.log("Personaje seleccionado:", character);
+                  // Aquí puedes manejar la selección del personaje
+                }}
+              />
+            )}
           </>
         ) : (
           <>
