@@ -47,7 +47,7 @@ const CharacterSelection = ({ membershipType, membershipId, onCharacterSelect })
     }, [membershipType, membershipId]);
 
     return (
-        <div>
+        <div className="character-selection-wrapper"> 
             <h2 className="selection-title">Selecciona un Personaje</h2>
             <div className="characters-container">
                 {characters.map((char) => (

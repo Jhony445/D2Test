@@ -6,7 +6,16 @@
     padding: 20px 0;
     scrollbar-width: thin; /* Firefox */
     scrollbar-color: #555 #2a2a2a; /* Firefox */
+    justify-content: center; /* Nuevo */
+    margin: 0 auto; /* Nuevo */
+    max-width: 90vw; /* Nuevo */
 }
+.character-selection-wrapper {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 0 20px;
+  }
 
 /* Scrollbar personalizada para WebKit */
 .characters-container::-webkit-scrollbar {
@@ -90,3 +99,17 @@
         width: 180px;
     }
 }
+
+@media (min-width: 1200px) {
+    .characters-container {
+      justify-content: flex-start; /* Solo en pantallas grandes */
+    }
+  }
+
+  @media (max-width: 1199px) {
+    .characters-container {
+      padding-left: calc(50% - 100px); /* Ajusta según el ancho de las cards */
+    }
+  }
+
+  
