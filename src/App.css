@@ -10,6 +10,8 @@
   );
   color: #ffffff;
   font-family: 'Arial', sans-serif;
+  width: 100%;
+  position: relative;
 }
 
 .App-header {
