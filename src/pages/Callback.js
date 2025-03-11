@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
 const TOKEN_URL = "https://www.bungie.net/platform/app/oauth/token/";
-const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Debe coincidir con lo registrado en Bungie
+const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Debe coincidir exactamente con la configurada en Bungie
 
 function Callback() {
   const [searchParams] = useSearchParams();
@@ -20,8 +20,7 @@ function Callback() {
 
   const fetchAccessToken = async (authCode) => {
     try {
-      console.log("Iniciando solicitud de token...");
-      
+      console.log("Iniciando solicitud de token con código:", authCode);
       const response = await fetch(TOKEN_URL, {
         method: "POST",
         headers: {
@@ -36,7 +35,6 @@ function Callback() {
       });
 
       console.log("Respuesta de Bungie recibida:", response);
-
       const data = await response.json();
       console.log("Datos del token obtenidos:", data);
 
