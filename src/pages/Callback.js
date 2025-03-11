@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 
 const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
 const TOKEN_URL = "https://www.bungie.net/platform/app/oauth/token/";
-const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Asegúrate de que coincida con lo registrado en Bungie
+const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Debe coincidir con lo registrado en Bungie
 
 function Callback() {
   const [searchParams] = useSearchParams();
@@ -13,6 +13,8 @@ function Callback() {
     console.log("Código recibido desde Bungie:", code);
     if (code) {
       fetchAccessToken(code);
+    } else {
+      console.error("No se recibió el código de autorización.");
     }
   }, [code]);
 
@@ -29,7 +31,7 @@ function Callback() {
           grant_type: "authorization_code",
           code: authCode,
           client_id: CLIENT_ID,
-          redirect_uri: REDIRECT_URI, // Agregado porque es requerido en algunas configuraciones
+          redirect_uri: REDIRECT_URI,
         }),
       });
 

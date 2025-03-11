@@ -3,8 +3,8 @@ import "./App.css";
 
 const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_API_KEY;
-const USER_URL = "https://www.bungie.net/Platform/User/GetBungieNetUser/";
-const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Asegúrate de que sea el correcto
+const USER_URL = "https://www.bungie.net/Platform/User/GetMembershipsForCurrentUser/";
+const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Asegúrate de que coincida con la configuración en Bungie
 
 function App() {
   const [user, setUser] = useState(null);
@@ -17,7 +17,7 @@ function App() {
     console.log("Token en localStorage:", token);
 
     if (token) {
-      console.log("Obteniendo datos del usuario...");
+      console.log("Obteniendo datos del usuario desde:", USER_URL);
       
       fetch(USER_URL, {
         method: "GET",
@@ -32,10 +32,10 @@ function App() {
         })
         .then((data) => {
           console.log("Datos del usuario obtenidos:", data);
-          if (data.Response) {
-            setUser(data.Response);
+          if (data.Response && data.Response.bungieNetUser) {
+            setUser(data.Response.bungieNetUser);
           } else {
-            console.error("Error: No se encontró la clave 'Response' en la API", data);
+            console.error("Error: No se encontró 'bungieNetUser' en la respuesta", data);
           }
         })
         .catch((error) => console.error("Error obteniendo datos del usuario:", error));
@@ -46,9 +46,8 @@ function App() {
 
   const handleLogin = () => {
     console.log("Redirigiendo a la autenticación de Bungie...");
-    
     const authUrl = `https://www.bungie.net/en/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-    
+    console.log("URL de autenticación:", authUrl);
     window.location.href = authUrl; // Redirige al usuario a Bungie para autenticación
   };
 
