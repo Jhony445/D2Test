@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import CharacterSelection from "./pages/CharacterSelection";
+import CharacterInventory from "./pages/CharacterInventory";
 
 const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
 const API_KEY = process.env.REACT_APP_API_KEY;
 const USER_URL = "https://www.bungie.net/Platform/User/GetMembershipsForCurrentUser/";
-const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Asegúrate de que coincida con la configuración en Bungie
+const REDIRECT_URI = "https://d2-test.vercel.app/callback";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [destinyMembership, setDestinyMembership] = useState(null); // Nuevo estado
+  const [destinyMembership, setDestinyMembership] = useState(null);
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [allCharacters, setAllCharacters] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("bungie_access_token");
@@ -24,23 +27,13 @@ function App() {
         .then((res) => res.json())
         .then((data) => {
           if (data.Response) {
-            // 1. Obtener usuario de Bungie.net
             const bungieUser = data.Response.bungieNetUser;
-            
-            // 2. Obtener membresías de Destiny
             const destinyMemberships = data.Response.destinyMemberships;
-            
-            // 3. Determinar membresía primaria (cross-save o primera disponible)
             const crossSaveOverride = data.Response.primaryMembershipId;
-            let primaryMembership;
-
-            if (crossSaveOverride) {
-              primaryMembership = destinyMemberships.find(
-                m => m.membershipId === crossSaveOverride
-              );
-            } else {
-              primaryMembership = destinyMemberships[0];
-            }
+            
+            let primaryMembership = crossSaveOverride 
+              ? destinyMemberships.find(m => m.membershipId === crossSaveOverride)
+              : destinyMemberships[0];
 
             if (primaryMembership) {
               setDestinyMembership({
@@ -57,19 +50,22 @@ function App() {
   }, []);
 
   const handleLogin = () => {
-    console.log("Redirigiendo a la autenticación de Bungie...");
     const authUrl = `https://www.bungie.net/en/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-    console.log("URL de autenticación:", authUrl);
-    window.location.href = authUrl; // Redirige al usuario a Bungie para autenticación
+    window.location.href = authUrl;
   };
 
   const handleLogout = () => {
-    console.log("Cerrando sesión...");
     localStorage.removeItem("bungie_access_token");
     setUser(null);
+    setSelectedCharacter(null);
+    setAllCharacters([]);
   };
 
-return (
+  const handleCharactersLoaded = (characters) => {
+    setAllCharacters(characters);
+  };
+
+  return (
     <div className="App">
       <header className="App-header">
         {user ? (
@@ -81,13 +77,25 @@ return (
             </button>
 
             {destinyMembership && (
-              <CharacterSelection
-                membershipType={destinyMembership.type}
-                membershipId={destinyMembership.id}
-                onCharacterSelect={(character) => {
-                  console.log("Personaje seleccionado:", character);
-                }}
-              />
+              <>
+                <CharacterSelection
+                  membershipType={destinyMembership.type}
+                  membershipId={destinyMembership.id}
+                  onCharacterSelect={setSelectedCharacter}
+                  onCharactersLoaded={handleCharactersLoaded}
+                />
+
+                {selectedCharacter && (
+                  <CharacterInventory
+                    character={selectedCharacter}
+                    membershipType={destinyMembership.type}
+                    membershipId={destinyMembership.id}
+                    otherCharacters={allCharacters.filter(
+                      c => c.characterId !== selectedCharacter.characterId
+                    )}
+                  />
+                )}
+              </>
             )}
           </div>
         ) : (
