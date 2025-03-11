@@ -32,8 +32,9 @@ function App() {
   }, []);
 
   const handleLogin = () => {
-    // Redirigir al usuario a la página de autenticación de Bungie
-    const authUrl = `https://www.bungie.net/es/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=token`;  // Cambié el response_type a "token"
+    const REDIRECT_URI = "https://d2-test.vercel.app/callback"; 
+    const authUrl = `https://www.bungie.net/en/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+      // Cambié el response_type a "token"
     window.location.href = authUrl; // Redirige al usuario a Bungie para autenticación
   };
 
