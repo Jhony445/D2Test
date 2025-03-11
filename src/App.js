@@ -69,32 +69,32 @@ function App() {
     setUser(null);
   };
 
-  return (
+return (
     <div className="App">
       <header className="App-header">
         {user ? (
-          <>
+          <div className="user-info">
             <h1>Bienvenido, {user.uniqueName}</h1>
             <p>ID de Bungie: {user.membershipId}</p>
-            <button onClick={handleLogout}>Cerrar Sesión</button>
+            <button className="logout-btn" onClick={handleLogout}>
+              Cerrar Sesión
+            </button>
 
-            {/* Mostrar selección de personajes */}
             {destinyMembership && (
               <CharacterSelection
                 membershipType={destinyMembership.type}
                 membershipId={destinyMembership.id}
                 onCharacterSelect={(character) => {
                   console.log("Personaje seleccionado:", character);
-                  // Aquí puedes manejar la selección del personaje
                 }}
               />
             )}
-          </>
+          </div>
         ) : (
-          <>
-            <h1>Bienvenido, inicia sesión</h1>
+          <div className="auth-container">
+            <h1>Bienvenido Guardian</h1>
             <button onClick={handleLogin}>Iniciar Sesión con Bungie</button>
-          </>
+          </div>
         )}
       </header>
     </div>

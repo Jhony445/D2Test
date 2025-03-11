@@ -1,36 +1,105 @@
 /* App.css */
 .App {
   text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f4f4f4;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
 }
 
 .App-header {
-  background: white;
-  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 15px;
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.user-info {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(40, 40, 40, 0.8);
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 h1 {
-  font-size: 24px;
-  color: #333;
+  font-size: 2.5rem;
+  color: #FFD700;
+  margin-bottom: 1rem;
+  font-family: 'Arial Black', sans-serif;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+p {
+  font-size: 1.1rem;
+  color: #cccccc;
+  margin: 0.5rem 0;
 }
 
 button {
-  background-color: #007bff;
-  color: white;
+  background: rgba(255, 215, 0, 0.9);
+  color: #1a1a1a;
   border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 5px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid transparent;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background: rgba(255, 215, 0, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  border-color: #FFD700;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .App {
+    padding: 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  
+  .logout-btn {
+    top: 10px;
+    right: 10px;
+  }
 }
