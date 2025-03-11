@@ -50,7 +50,7 @@ function App() {
   }, []);
 
   const handleLogin = () => {
-    const authUrl = `https://www.bungie.net/en/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+    const authUrl = `https://www.bungie.net/en/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=MoveEquipDestinyItems`;
     window.location.href = authUrl;
   };
 

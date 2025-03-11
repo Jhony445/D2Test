@@ -1,0 +1,154 @@
+/* CharacterInventory.css */
+.inventory-container {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(30, 30, 30, 0.9);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .inventory-container h3 {
+    color: #FFD700;
+    font-family: 'Arial Black', sans-serif;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .weapons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.2rem;
+    padding: 1rem;
+  }
+  
+  .weapon-card {
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+  }
+  
+  .weapon-card:hover {
+    transform: translateY(-3px);
+    background: #333;
+    border-color: #FFD700;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
+  }
+  
+  .weapon-icon {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    margin-bottom: 0.8rem;
+    border: 2px solid #3a3a3a;
+  }
+  
+  .weapon-card p {
+    color: #fff;
+    font-size: 0.95rem;
+    text-align: center;
+    margin: 0;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .transfer-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1a1a1a;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 2px solid #FFD700;
+    z-index: 1000;
+    min-width: 300px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  .transfer-modal h4 {
+    color: #FFD700;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.3rem;
+  }
+  
+  .characters-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .character-option {
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    min-width: 120px;
+    text-align: center;
+  }
+  
+  .character-option:hover {
+    background: #333;
+    border-color: #FFD700;
+    transform: translateY(-2px);
+  }
+  
+  .character-option p {
+    margin: 0.3rem 0;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  
+  .character-option p:first-child {
+    color: #FFD700;
+    font-weight: bold;
+  }
+  
+  /* Scrollbar personalizada */
+  .weapons-grid::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .weapons-grid::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 4px;
+  }
+  
+  .weapons-grid::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+  }
+  
+  @media (max-width: 768px) {
+    .weapons-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+      padding: 0.5rem;
+    }
+    
+    .transfer-modal {
+      width: 90%;
+      padding: 1.5rem;
+    }
+    
+    .character-option {
+      padding: 0.8rem;
+      min-width: 100px;
+    }
+  }

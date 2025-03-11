@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import "../styles/CharacterInventory.css";
 const API_KEY = process.env.REACT_APP_API_KEY;
 
 const CharacterInventory = ({ character, membershipType, membershipId, otherCharacters }) => {
