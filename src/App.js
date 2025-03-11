@@ -2,18 +2,23 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 const CLIENT_ID = process.env.REACT_APP_BUNGIE_CLIENT_ID;
-const API_KEY = process.env.REACT_APP_API_KEY;  // Cambia esto para usar la variable de entorno
+const API_KEY = process.env.REACT_APP_API_KEY;
 const USER_URL = "https://www.bungie.net/Platform/User/GetBungieNetUser/";
+const REDIRECT_URI = "https://d2-test.vercel.app/callback"; // Asegúrate de que sea el correcto
 
 function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Verificar si el token de acceso está en el localStorage
+    console.log("CLIENT_ID:", CLIENT_ID);
+    console.log("API_KEY:", API_KEY);
+
     const token = localStorage.getItem("bungie_access_token");
+    console.log("Token en localStorage:", token);
 
     if (token) {
-      // Si existe el token, obtener los datos del usuario
+      console.log("Obteniendo datos del usuario...");
+      
       fetch(USER_URL, {
         method: "GET",
         headers: {
@@ -21,25 +26,34 @@ function App() {
           "X-API-Key": API_KEY,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          console.log("Respuesta de la API de Bungie:", res);
+          return res.json();
+        })
         .then((data) => {
+          console.log("Datos del usuario obtenidos:", data);
           if (data.Response) {
-            setUser(data.Response);  // Guardar los datos del usuario en el estado
+            setUser(data.Response);
+          } else {
+            console.error("Error: No se encontró la clave 'Response' en la API", data);
           }
         })
         .catch((error) => console.error("Error obteniendo datos del usuario:", error));
+    } else {
+      console.warn("No se encontró token en localStorage.");
     }
   }, []);
 
   const handleLogin = () => {
-    const REDIRECT_URI = "https://d2-test.vercel.app/callback"; 
+    console.log("Redirigiendo a la autenticación de Bungie...");
+    
     const authUrl = `https://www.bungie.net/en/OAuth/Authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-      // Cambié el response_type a "token"
+    
     window.location.href = authUrl; // Redirige al usuario a Bungie para autenticación
   };
 
   const handleLogout = () => {
-    // Eliminar el token de acceso y limpiar el estado
+    console.log("Cerrando sesión...");
     localStorage.removeItem("bungie_access_token");
     setUser(null);
   };
