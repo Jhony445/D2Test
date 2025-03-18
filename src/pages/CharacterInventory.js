@@ -3,11 +3,11 @@ import "../styles/CharacterInventory.css";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-// Bucket Hashes para filtrar armas
+// Bucket Hashes para filtrar armas (puedes agregar más según necesites)
 const WEAPON_BUCKETS = {
-  KINETIC: 1498876634,
-  ENERGY: 2465295065,
-  POWER: 953998645
+  KINETIC: 1498876634,     // Armas principales
+  ENERGY: 2465295065,      // Armas especiales
+  POWER: 953998645         // Armas pesadas
 };
 
 const CharacterInventory = ({ character, membershipType, membershipId, otherCharacters }) => {
@@ -16,17 +16,12 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
   const [itemDefinitions, setItemDefinitions] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
+  // Obtener inventario
   useEffect(() => {
     const fetchInventory = async () => {
       setIsLoading(true);
       const token = localStorage.getItem('bungie_access_token');
-      if (!token) {
-        console.error("No se encontró el token de autenticación");
-        setIsLoading(false);
-        return;
-      }
-
-      const url = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/Character/${character.characterId}/?components=201`;
+      const url = `https://www.bungie.net/Platform/Destiny2/${membershipType}/Profile/${membershipId}/Character/${character.characterId}/?components=201`; // Componente 201 para inventario
 
       try {
         const response = await fetch(url, {
@@ -35,19 +30,17 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
             'X-API-Key': API_KEY
           }
         });
-
         const data = await response.json();
-        
+
         if (data.Response?.inventory?.data?.items) {
+          // Filtrar solo armas usando los bucketHash conocidos
           const weapons = data.Response.inventory.data.items.filter(item =>
             Object.values(WEAPON_BUCKETS).includes(item.bucketHash)
           );
           setInventory(weapons);
-        } else {
-          console.warn("No se encontraron armas en el inventario.");
         }
       } catch (error) {
-        console.error('Error al obtener el inventario:', error);
+        console.error('Error fetching inventory:', error);
       } finally {
         setIsLoading(false);
       }
@@ -58,6 +51,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
     }
   }, [character, membershipType, membershipId]);
 
+  // Obtener definiciones de items
   useEffect(() => {
     const fetchItemDefinitions = async (itemHashes) => {
       try {
@@ -82,7 +76,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
 
         setItemDefinitions(definitionsMap);
       } catch (error) {
-        console.error('Error al obtener definiciones de ítems:', error);
+        console.error('Error fetching item definitions:', error);
       }
     };
 
@@ -94,30 +88,25 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
 
   const handleTransfer = async (targetCharacterId) => {
     const token = localStorage.getItem('bungie_access_token');
-    if (!token) {
-      console.error("No se encontró el token de autenticación.");
-      return;
-    }
-
     const transferUrl = 'https://www.bungie.net/Platform/Destiny2/Actions/Items/TransferItem/';
 
+    // Validar que tenemos todos los datos necesarios
     if (!selectedItem?.itemInstanceId || !selectedItem?.itemHash) {
-      console.error('Datos del ítem incompletos:', selectedItem);
+      console.error('Datos del ítem incompletos');
       return;
     }
 
-    const body = {
-      itemReferenceHash: Number(selectedItem.itemHash),
-      itemId: selectedItem.itemInstanceId,
-      stackSize: 1,
-      transferToVault: false,
-      characterId: targetCharacterId,
-      membershipType: membershipType
-    };
-
-    console.log("Enviando transferencia:", body);
-
     try {
+      const body = {
+        itemReferenceHash: Number(selectedItem.itemHash), // Asegura que sea número
+        itemId: selectedItem.itemInstanceId, // Instancia del ítem
+        stackSize: 1,
+        transferToVault: false, // Si es `true`, lo manda al depósito en vez de otro personaje
+        characterId: targetCharacterId,
+        membershipType: membershipType
+      };
+      console.log("Enviando:", body);
+
       const response = await fetch(transferUrl, {
         method: 'POST',
         headers: {
@@ -129,12 +118,12 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
       });
 
       const result = await response.json();
-      
-      console.log("Respuesta de la API:", result);
 
       if (result.ErrorCode === 1) {
-        console.log('Transferencia exitosa.');
-        setInventory(prev => prev.filter(item => item.itemInstanceId !== selectedItem.itemInstanceId));
+        console.log('Transferencia exitosa');
+        setInventory(prev => prev.filter(item =>
+          item.itemInstanceId !== selectedItem.itemInstanceId
+        ));
         setSelectedItem(null);
       } else {
         console.error('Error en transferencia:', {
@@ -145,7 +134,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
         });
       }
     } catch (error) {
-      console.error('Error de red en la transferencia:', error);
+      console.error('Error de red:', error);
     }
   };
 
@@ -160,17 +149,17 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
             {inventory.map((item) => {
               const itemDef = itemDefinitions[item.itemHash] || {};
               return (
-                <div 
-                  key={item.itemInstanceId} 
+                <div
+                  key={item.itemInstanceId}
                   className="weapon-card"
                   onClick={() => setSelectedItem(item)}
                 >
-                  <img 
-                    src={`https://www.bungie.net${itemDef.displayProperties?.icon}`} 
-                    alt={itemDef.displayProperties?.name || 'Ítem desconocido'} 
+                  <img
+                    src={`https://www.bungie.net${itemDef.displayProperties?.icon}`}
+                    alt={itemDef.displayProperties?.name}
                     className="weapon-icon"
                     onError={(e) => {
-                      e.target.onerror = null; 
+                      e.target.onerror = null;
                       e.target.src = 'https://www.bungie.net/common/destiny2_content/icons/ea5d6b7f6a0c1d3863f3f9b4eab8b61f.png';
                     }}
                   />
@@ -182,10 +171,10 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
 
           {selectedItem && (
             <div className="transfer-modal">
-              <h4>Transferir {itemDefinitions[selectedItem.itemHash]?.displayProperties?.name || 'Ítem'}</h4>
+              <h4>Transferir {itemDefinitions[selectedItem.itemHash]?.displayProperties?.name}</h4>
               <div className="characters-list">
                 {otherCharacters.map((char) => (
-                  <div 
+                  <div
                     key={char.characterId}
                     className="character-option"
                     onClick={() => handleTransfer(char.characterId)}
