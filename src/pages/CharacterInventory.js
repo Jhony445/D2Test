@@ -88,8 +88,25 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
   const handleTransfer = async (targetCharacterId) => {
     const token = localStorage.getItem('bungie_access_token');
     const transferUrl = 'https://www.bungie.net/Platform/Destiny2/Actions/Items/TransferItem/';
-    
+  
+    // Validar que tenemos todos los datos necesarios
+    if (!selectedItem?.itemInstanceId || !selectedItem?.itemHash) {
+      console.error('Datos del ítem incompletos');
+      return;
+    }
+  
     try {
+
+      const body = {
+        itemReferenceHash: Number(selectedItem.itemHash), // Asegura que sea número
+        itemId: selectedItem.itemInstanceId, // Instancia del ítem
+        stackSize: 1,
+        transferToVault: false, // Si es `true`, lo manda al depósito en vez de otro personaje
+        characterId: targetCharacterId,
+        membershipType: membershipType
+      };
+      console.log("Enviando:", body);
+
       const response = await fetch(transferUrl, {
         method: 'POST',
         headers: {
@@ -97,30 +114,29 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
           'X-API-Key': API_KEY,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          itemReferenceHash: selectedItem.itemHash,
-          stackSize: 1,
-          transferToVault: false,
-          characterId: targetCharacterId,
-          membershipType: membershipType,
-          itemId: selectedItem.itemInstanceId // Importante para identificar el ítem único
-        })
+        body: JSON.stringify(body)
       });
       
       const result = await response.json();
+      
       if (result.ErrorCode === 1) {
         console.log('Transferencia exitosa');
-        // Actualizar inventario removiendo el ítem transferido
         setInventory(prev => prev.filter(item => 
           item.itemInstanceId !== selectedItem.itemInstanceId
         ));
         setSelectedItem(null);
+      } else {
+        console.error('Error en transferencia:', {
+          status: result.ErrorStatus,
+          code: result.ErrorCode,
+          message: result.Message,
+          throttle: result.ThrottleSeconds
+        });
       }
     } catch (error) {
-      console.error('Error transferring item:', error);
+      console.error('Error de red:', error);
     }
   };
-
   return (
     <div className="inventory-container">
       <h3>Inventario de {getClassName(character.classType)}</h3>
