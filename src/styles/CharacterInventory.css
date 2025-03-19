@@ -1,226 +1,153 @@
 /* CharacterInventory.css */
 .inventory-container {
-    width: 100%;
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: rgba(30, 30, 30, 0.9);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 215, 0, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-  
-  .inventory-container h3 {
-    color: #FFD700;
-    font-family: 'Arial Black', sans-serif;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
-  .weapons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1.2rem;
-    padding: 1rem;
-  }
-  
-  .weapon-card {
-    background: #2a2a2a;
-    border-radius: 8px;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid transparent;
-  }
-  
-  .weapon-card:hover {
-    transform: translateY(-3px);
-    background: #333;
-    border-color: #FFD700;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
-  }
-  
-  .weapon-icon {
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-    aspect-ratio: 1;
-    object-fit: cover;
-    margin-bottom: 0.8rem;
-    border: 2px solid #3a3a3a;
-    background: #1a1a1a url('https://www.bungie.net/common/destiny2_content/icons/ea5d6b7f6a0c1d3863f3f9b4eab8b61f.png') no-repeat center;
-    background-size: 70%;
-  }
-  
-  .weapon-card p {
-    color: #fff;
-    font-size: 0.95rem;
-    text-align: center;
-    margin: 0;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .transfer-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #1a1a1a;
-    padding: 2rem;
-    border-radius: 12px;
-    border: 2px solid #FFD700;
-    z-index: 1000;
-    min-width: 300px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-  }
-  
-  .transfer-modal h4 {
-    color: #FFD700;
-    text-align: center;
-    margin: 0 0 1.5rem 0;
-    font-size: 1.3rem;
-  }
-  
-  .characters-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-  }
-  
-  .character-option {
-    background: #2a2a2a;
-    padding: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-    min-width: 120px;
-    text-align: center;
-  }
-  
-  .character-option:hover {
-    background: #333;
-    border-color: #FFD700;
-    transform: translateY(-2px);
-  }
-  
-  .character-option p {
-    margin: 0.3rem 0;
-    color: #fff;
-    font-size: 0.9rem;
-  }
-  
-  .character-option p:first-child {
-    color: #FFD700;
-    font-weight: bold;
-  }
-  
-  /* Scrollbar personalizada */
-  .weapons-grid::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  .weapons-grid::-webkit-scrollbar-track {
-    background: #2a2a2a;
-    border-radius: 4px;
-  }
-  
-  .weapons-grid::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 4px;
-  }
-  
-  @media (max-width: 768px) {
-    .weapons-grid {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 1rem;
-      padding: 0.5rem;
-    }
-    
-    .transfer-modal {
-      width: 90%;
-      padding: 1.5rem;
-    }
-    
-    .character-option {
-      padding: 0.8rem;
-      min-width: 100px;
-    }
-  }
-
-  .loading-message {
-    color: #FFD700;
-    text-align: center;
-    font-size: 1.2rem;
-    padding: 2rem;
-  }
-  
-  /* Añadir al existing .weapons-grid */
-  .weapons-grid {
-    min-height: 200px;
-  }
-  
-  /* Mejorar mensajes de error */
-  .weapon-icon:before {
-    content: "Imagen no disponible";
-    display: block;
-    color: #666;
-    font-size: 0.8rem;
-    text-align: center;
-  }
-
-
-  /* CharacterInventory.css */
-.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  filter: grayscale(100%);
+  padding: 20px;
+  background: rgba(30, 30, 30, 0.9);
+  border-radius: 8px;
+  margin-top: 20px;
 }
 
-.equipped-tag {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: #4CAF50;
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #3a3a3a;
+  border-top-color: #FFD700;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.weapons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.weapon-card {
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.weapon-card:hover {
+  transform: translateY(-3px);
+}
+
+.weapon-icon {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.weapon-info {
+  padding: 5px;
+}
+
+.weapon-name {
   color: white;
-  padding: 2px 5px;
-  border-radius: 3px;
+  font-size: 0.9em;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weapon-type {
+  color: #FFD700;
   font-size: 0.8em;
+  margin: 0;
+}
+
+.transfer-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  z-index: 1000;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.characters-list {
+  display: grid;
+  gap: 10px;
+}
+
+.character-option {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.character-option:hover {
+  background: #333;
+}
+
+.character-class-icon img {
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+}
+
+.character-info {
+  flex-grow: 1;
+}
+
+.character-class {
+  color: #FFD700;
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.character-light {
+  color: #ccc;
+  margin: 0;
+  font-size: 0.9em;
 }
 
 .error-message {
   color: #ff4444;
+  background: #4a0000;
   padding: 10px;
+  border-radius: 5px;
   margin: 10px 0;
-  border: 1px solid #ff4444;
-  border-radius: 4px;
-  background: #ffeaea;
-}
-
-.loading {
-  color: #FFD700;
   text-align: center;
-  padding: 20px;
-}
-
-.close-button {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background: #666;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.close-button:hover {
-  background: #888;
 }
