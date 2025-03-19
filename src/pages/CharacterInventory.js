@@ -16,7 +16,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
 
-  // 1. Cargar manifiesto completo como DIM
+  // 1. Cargar manifiesto completo
   const loadManifest = useCallback(async () => {
     try {
       const manifestResponse = await fetch(
@@ -36,7 +36,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
     }
   }, []);
 
-  // 2. Cargar inventario con paginación
+  // 2. Cargar inventario
   const loadInventory = useCallback(async () => {
     if (!itemDefinitions || !character?.characterId) return;
 
@@ -72,8 +72,8 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
                !item.equipped;
       });
 
-      const inventoryItems = processItems(inventoryData.Response.inventory.data.items);
-      const equipmentItems = processItems(equipmentData.Response.equipment.data.items);
+      const inventoryItems = processItems(inventoryData.Response.inventory.data.items || []);
+      const equipmentItems = processItems(equipmentData.Response.equipment.data.items || []);
 
       setInventory([...inventoryItems, ...equipmentItems]);
     } catch (error) {
@@ -84,18 +84,17 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
     }
   }, [character, membershipType, membershipId, itemDefinitions]);
 
-  // 3. Transferencia en dos pasos (Vault -> Destino)
+  // 3. Transferencia de items
   const transferItem = useCallback(async (targetCharacterId) => {
     const token = localStorage.getItem('bungie_access_token');
     setApiError(null);
 
     try {
-      // Validación
       if (!selectedItem?.itemInstanceId || !selectedItem?.itemHash) {
         throw new Error('Datos del ítem incompletos');
       }
 
-      // Paso 1: Mover al depósito
+      // Paso 1: Al depósito
       const vaultTransfer = await fetch('https://www.bungie.net/Platform/Destiny2/Actions/Items/TransferItem/', {
         method: 'POST',
         headers: {
@@ -116,7 +115,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
       const vaultResult = await vaultTransfer.json();
       if (vaultResult.ErrorCode !== 1) throw vaultResult;
 
-      // Paso 2: Mover al personaje destino
+      // Paso 2: Al personaje destino
       const charTransfer = await fetch('https://www.bungie.net/Platform/Destiny2/Actions/Items/TransferItem/', {
         method: 'POST',
         headers: {
@@ -137,20 +136,17 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
       const charResult = await charTransfer.json();
       if (charResult.ErrorCode !== 1) throw charResult;
 
-      // Actualizar estado
-      setInventory(prev => prev.filter(item => 
-        item.itemInstanceId !== selectedItem.itemInstanceId
-      ));
+      setInventory(prev => prev.filter(item => item.itemInstanceId !== selectedItem.itemInstanceId));
       setSelectedItem(null);
 
     } catch (error) {
       console.error('Transfer error:', error);
       setApiError(error.Message || 'Error en la transferencia');
-      loadInventory(); // Recargar inventario
+      loadInventory();
     }
   }, [selectedItem, character, membershipType, loadInventory]);
 
-  // 4. Efectos de carga inicial
+  // 4. Carga inicial
   useEffect(() => {
     const initialize = async () => {
       await loadManifest();
@@ -180,7 +176,7 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
         <>
           <div className="weapons-grid">
             {inventory.map((item) => {
-              const def = itemDefinitions[item.itemHash];
+              const def = itemDefinitions?.[item.itemHash];
               return (
                 <div
                   key={item.itemInstanceId}
@@ -199,42 +195,47 @@ const CharacterInventory = ({ character, membershipType, membershipId, otherChar
                     <p className="weapon-name">{def?.displayProperties?.name || 'Arma desconocida'}</p>
                     <p className="weapon-type">{getWeaponType(def?.inventory?.bucketTypeHash)}</p>
                   </div>
+                  {item.equipped && <div className="equipped-tag">EQUIPADO</div>}
                 </div>
               );
             })}
           </div>
 
           {selectedItem && (
-            <div className="transfer-modal">
-              <div className="modal-header">
-                <h4>Transferir {itemDefinitions[selectedItem.itemHash]?.displayProperties?.name}</h4>
-                <button 
-                  className="close-button"
-                  onClick={() => setSelectedItem(null)}
-                >
-                  ×
-                </button>
-              </div>
-              
-              <div className="characters-list">
-                {otherCharacters.map((char) => (
-                  <div
-                    key={char.characterId}
-                    className="character-option"
-                    onClick={() => transferItem(char.characterId)}
+            <div className="transfer-modal-overlay">
+              <div className="transfer-modal">
+                <div className="modal-header">
+                  <h4>Transferir {itemDefinitions[selectedItem.itemHash]?.displayProperties?.name}</h4>
+                  <button 
+                    className="close-button"
+                    onClick={() => setSelectedItem(null)}
                   >
-                    <div className="character-class-icon">
-                      <img 
-                        src={getClassIcon(char.classType)} 
-                        alt={getClassName(char.classType)} 
-                      />
-                    </div>
-                    <div className="character-info">
-                      <p className="character-class">{getClassName(char.classType)}</p>
-                      <p className="character-light">Nivel: {char.light}</p>
-                    </div>
-                  </div>
-                ))}
+                    ×
+                  </button>
+                </div>
+                
+                <div className="characters-list">
+                  {otherCharacters
+                    .filter(c => c.characterId !== character.characterId)
+                    .map((char) => (
+                      <div
+                        key={char.characterId}
+                        className="character-option"
+                        onClick={() => transferItem(char.characterId)}
+                      >
+                        <div className="character-class-icon">
+                          <img 
+                            src={getClassIcon(char.classType)} 
+                            alt={getClassName(char.classType)} 
+                          />
+                        </div>
+                        <div className="character-info">
+                          <p className="character-class">{getClassName(char.classType)}</p>
+                          <p className="character-light">Nivel: {char.light}</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
           )}
